@@ -1,79 +1,54 @@
-// console.log("出題者の数字を決定する");
-function setAnswer (){
-  const answer = Math.floor( Math.random() * 11 );
+// 1. まずは汎用的なものを定義する
+// ------------------------------------------------
+
+function generateAnswer() {
+  const answer = Math.floor(Math.random() * 11);
   return answer;
 }
 
-
-// console.log("ボタンが押されたら回答者のボタンの値をもらう");
-
-// 宿題：ボタンを複数個おいて、それぞれのボタンがおされたときに、それぞれのメッセージを出力するようにする
-
-function compare (answer, guessNumber){
-  if(guessNumber == answer){
-    return "あたり！";
-  }
-  else if (guessNumber < answer){
-    return "小さい";
-  }
-  else if (guessNumber > answer){
-    return "大きい";
-  }
+function display(area, result) {
+  area.textContent = result;
 }
 
-function display (result){
-  const div = document.getElementById("result");
-  div.innerHTML = result;
+function toggle(el, bool) {
+  el.style.display = bool ? "block" : "none";
 }
 
-function showResetBtn (result){
-  if (result === "あたり！"){
-    const resetBtn = document.getElementById("reset");
-    resetBtn.style.display = "block";
-  }
-}
+// 2. このアプリで特有のものを定義する
+// ------------------------------------------------
 
-let answer = setAnswer();
+// 今回のDOM要素のように、常に存在するものは先に
+const resultArea = document.querySelector("#result");
+const resetBtn = document.querySelector("#reset");
+const btns = document.querySelectorAll("#numbers button");
 
-function game(){
-  const btn = document.querySelectorAll("div.number > button");
-  btn.forEach((el) => {
-    el.addEventListener("click", (event) => {
-      const guessNumber = event.currentTarget.value;
-      console.log(answer);
-      console.log(guessNumber);
-      const result = compare (answer, guessNumber);
-      display (result + "です。");
-      showResetBtn (result);
-    });
-  })
-}
+// アプリの中で書き換わる"状態"にあたるもの
+let answer = generateAnswer();
 
-game ();
+// 3. 定義したものを紐付けて動かす
+// ------------------------------------------------
 
-document.getElementById("reset").onclick  = function (){
-  const restbtn = document.getElementById("reset");
-  restbtn.style.display = "none";
-  const div = document.getElementById("result"); // ここ加えました
-  div.innerHTML = ""; // 結果表示も消す処理をしてます。
-  let newAnswer;
-  newAnswer = setAnswer();
-  console.log(newAnswer);
-  answer = newAnswer;
-  }
+display(resultArea, "数字をえらんでね");
 
+btns.forEach((el) => {
+  el.addEventListener("click", (event) => {
+    const guessNumber = parseInt(event.currentTarget.value);
 
+    //     console.log({ answer, guessNumber });
 
-// answerの初期値をリセットする方法がわからん。
+    if (guessNumber === answer) {
+      display(resultArea, "あたり！天才！");
+      toggle(resetBtn, true);
+    } else if (guessNumber < answer) {
+      display(resultArea, "小さいかも..");
+    } else if (guessNumber > answer) {
+      display(resultArea, "大きいわ!");
+    }
+  });
+});
 
-
-
-// console.log("判定する");
-
-// (answer, )
-
-// console.log("判定結果を受けて、表示する");
-
-// console.log("bingoだったらstart againボタンを表示する");
-
-// console.log("start againボタンが押されたら、はじめに戻る");
+resetBtn.addEventListener("click", () => {
+  toggle(resetBtn, false);
+  display(resultArea, "数字を選んでね");
+  answer = generateAnswer();
+});
